@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OfflineReader</string>
+    <string name="wrong_url">wrong url</string>
 </resources>

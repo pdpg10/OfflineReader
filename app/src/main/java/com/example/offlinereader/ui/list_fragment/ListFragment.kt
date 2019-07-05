@@ -7,15 +7,24 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.example.offlinereader.R
+import com.example.offlinereader.extension.app
+import com.example.offlinereader.model.Link
+import com.example.offlinereader.storage.pref.IPref
 import com.example.offlinereader.ui.global.BaseFragment
 import com.example.offlinereader.ui.list_fragment.adapter.LinkAdapter
 import kotlinx.android.synthetic.main.fragment_list.*
 
-class ListFragment : BaseFragment(), TextView.OnEditorActionListener {
+class ListFragment : BaseFragment(),
+    TextView.OnEditorActionListener {
 
     override val layoutRes: Int = R.layout.fragment_list
     private var adapter: LinkAdapter? = null
+    private var pref: IPref? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pref = activity?.app()?.pref
+    }
 
     override fun onViewCreated(
         view: View,
@@ -43,12 +52,15 @@ class ListFragment : BaseFragment(), TextView.OnEditorActionListener {
         val url = et_url.text.toString()//todo howework toString():String
         val urlRegex = Patterns.WEB_URL.toRegex()//todo change it
         val isValidate = urlRegex.matches(url)
-        if (isValidate) {
+        if (isValidate) {//todo check duplicate
+            //todo https is have
             et_url.error = null
             val link = Link(url)
+            pref?.addLink(link)
             adapter?.addLink(link)
+            et_url.text.clear()
         } else {
-            et_url.error = "wrong url"
+            et_url.error = getString(R.string.wrong_url)
         }
     }
 
@@ -58,6 +70,11 @@ class ListFragment : BaseFragment(), TextView.OnEditorActionListener {
         rv.adapter = adapter
     }
 
-    private fun loadLinks() = mutableListOf<Link>()
+    fun notifyByPosition(link: Link) {
+
+        adapter?.notifyItemChanged(link)
+    }
+
+    private fun loadLinks() = pref?.readLinks() ?: mutableListOf()
 
 }
