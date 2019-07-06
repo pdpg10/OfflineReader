@@ -1,6 +1,8 @@
 package com.example.offlinereader.ui
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.offlinereader.R
 import com.example.offlinereader.common.OnItemChangedLister
@@ -19,9 +21,12 @@ class MainActivity : AppCompatActivity()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        val sharedUrl = intent.getStringExtra(Intent.EXTRA_TEXT)
+        Log.d("MainActivity", "onCreate $sharedUrl")
         if (savedInstanceState == null) {
-            addFragment(ListFragment())
+            val fragment = if (sharedUrl == null) ListFragment()
+            else ListFragment.create(Link(sharedUrl))
+            addFragment(fragment)
         }
     }
 
